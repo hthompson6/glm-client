@@ -1,66 +1,10 @@
-#!/usr/bin/env python3
-# 
-# Author: Terry Jones, tjones@a10networks.com
-# 
-# Date:  JUN2018
-#
-# This script will login into the GLM server (glm.a10networks.com) using the user 
-# credentials and perform one of the following actions:
-#   * revoke the activation for a given ID(will release bandwidth from the vThunder back to the pool.
-#   * revoke the license for a given ID
-#   * activate a perpetual license
-#
-# Note: The information required for this script should be completed before this script is
-# run. I would also recommend testing the script with the information completed to verify 
-# functionality as well as ensure you are prepared for an emergency. 
-#
-# REVISIONS
-#   0 - Initial generation
-#
+# Copyright A10 Networks 2019 
 
-'''
-Example configuration to register a vThunder with a Flexpool (subscription license)(ACOS v4.1.4-P1.69)
 
-vThunder-Active-affinity-def-vMaster[4/1](config:2)#show run glm
-!Section configuration: 94 bytes        
-!
-glm use-mgmt-port 
-glm enable-requests 
-glm allocate-bandwidth 200 
-glm token vThd10516000
-!
-Run this command to update changes to GLM:
-
-  glm send license-request
-
-'''
-
-__version__ = 0.1
-__author__ = 'A10 Networks'
-
-import json, argparse, requests
-
-parser = argparse.ArgumentParser(description='This program will log into the GLM server and revoke the BW for a given vThunder.')
-parser.add_argument('-p', '--password', default='a10', help='User password to access the GLM server (glm.a10networks.com)')
-parser.add_argument('-u', '--username', default='admin', help='User email to access the GLM server (glm.a10networks.com)')
-parser.add_argument('-d', '--uuid', default='3869D3001FD943DBA06B6A0E67F8B36D605C6360', help='show license uuid on vThunder')
-parser.add_argument('-l', '--license_id', default='00000', help='where ID is locator found in url::https://glm.a10networks.com/licenses/ID/activations')
-parser.add_argument('-i', '--id', default='00000', help='where ID must be located using API or website content search')
-parser.add_argument('-a', '--account_id', default='000', help='where account_id is value found in url::https://glm.a10networks.com/licenses?account_id=XXX')
+import json
+import requests
 
 requests.packages.urllib3.disable_warnings()
-
-try:
-    args = parser.parse_args()
-    password = args.password
-    username = args.username
-    id = args.id
-    uuid = args.uuid
-    account_id = args.account_id
-    license_id = args.license_id
-
-except Exception as e:
-    print('ArgParser Error: ', e)
 
 
 def glm_login():
@@ -306,15 +250,3 @@ def revoke_activation(user_token):
 
     except Exception as e:
         print('Error in revoke_activation: ', e)
-
-
-if __name__ == '__main__':
-
-    glm_token=glm_login()
-    #print('All perpetual entitlement tokens for '+username+': ',get_all_perpetual_licences(glm_token))
-    #print('All subscription based entitlement tokens for '+username+': ',get_all_subscription_licences(glm_token))
-    #print('The entitlement token for '+license_id+' is:', get_entitlement_token(glm_token))
-    #print('uuid(s) for '+license_id+' are: ',get_uuid(glm_token))
-    #print('Key for vThunder with uuid='+uuid+'\nkey::', activate_appliance(glm_token))
-    #print(revoke_license(glm_token))
-    #print('The vThunder associated with has been revoked. Status Code:', revoke_activation(glm_token))
